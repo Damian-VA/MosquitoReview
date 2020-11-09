@@ -30,5 +30,9 @@ map(database="worldHires",
   xlim=c(-131,-29),  #longitude
   ylim=c(51,-56))    #latitude
 
+#long story short: I gave up, lets use
+#the full world map for now
+map()
+
 
 
