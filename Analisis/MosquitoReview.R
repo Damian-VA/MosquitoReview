@@ -5,7 +5,10 @@
 # Damián Villaseñor-Amador
 # César A. Sandoval-Ruiz
 
-####Fooling around####
+####R map tutorial####
+
+#By Kim Gilbert
+#https://www.molecularecologist.com/2012/09/making-maps-with-r/
 
 #Packages
 library(maps)    #map functions
@@ -20,6 +23,12 @@ map("worldHires","Canada",
   col="gray90",
   fill=T)
 
+#superior left corner of USA+Latinamerica: -131.256851W, 51.229805N 
+#inferior right corner of USA+Latinamerica: -29.305435W, -56.884485S, 
+
+map(database="worldHires",
+  xlim=c(-131,-29),  #longitude
+  ylim=c(51,-56))    #latitude
 
 
 
