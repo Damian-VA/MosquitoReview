@@ -13,6 +13,8 @@
 #Packages
 library(maps)    #map functions
 library(mapdata) #basic world map data
+library(maptools)#for shapefiles
+library(scales)  #for transparency
 
 #Canada map
 #Coordinates in decimals, R won't read
@@ -34,5 +36,15 @@ map(database="worldHires",
 #the full world map for now
 map()
 
+#Mosquito database
+#Note: it only has one mosquito species
+#column and one landscape column
+mosquito <- read.csv("./Analisis/MosquitoData.txt", header=T, sep="\t")
+head(mosquito)
 
-
+#Plotting mosquito study locations
+#and saving it as a png image
+png("MosquitoMap.png", width = 1080, height = 720, units = "px")
+map()
+points(mosquito$Long_dec, mosquito$Lat_dec, pch="\uD83E\uDD9F", col="navyblue", cex=2)
+dev.off()
