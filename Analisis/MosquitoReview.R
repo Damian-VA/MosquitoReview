@@ -48,3 +48,12 @@ png("MosquitoMap.png", width = 1080, height = 720, units = "px")
 map()
 points(mosquito$Long_dec, mosquito$Lat_dec, pch="\uD83E\uDD9F", col="navyblue", cex=2)
 dev.off()
+
+#Plotting temporal trend of mosquito
+#studies (as suggested by Nakagawa 
+#et al., 2018; pp. 3)
+plot(as.numeric(mosquito$ID)~mosquito$Year)
+levels(mosquito$ID)
+levels(as.factor(mosquito$Year))
+length(levels(mosquito$ID))
+
