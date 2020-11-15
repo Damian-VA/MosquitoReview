@@ -57,3 +57,48 @@ levels(mosquito$ID)
 levels(as.factor(mosquito$Year))
 length(levels(mosquito$ID))
 
+#15 November 2020
+#superior left corner of USA+Latinamerica: -53 S, -131 W 
+#inferior right corner of USA+Latinamerica: 50 N, -23 W, 
+
+#Importing mosquito study sites
+mosquito <- read.csv("./Analisis/MosquitoData.txt", header=T, sep="\t")
+mosquitosymbol <- "\uD83E\uDD9F"
+png("Map_WrongCoords.png", units="in", width=16, height=16, res=600)
+map(database="worldHires", 
+    regions = c("USA",
+    "Mexico",
+    "Guatemala",
+    "Belize",
+    "El Salvador",
+    "Honduras",
+    "Nicaragua",
+    "Panama",
+    "Costa Rica",
+    "Venezuela",
+    "Colombia",
+    "Guyana",
+    "French Guiana",
+    "Suriname",
+    "Brazil",
+    "Ecuador(?!:Galapagos)",
+    "Peru",
+    "Bolivia",
+    "Paraguay",
+    "Uruguay",
+    "Chile",
+    "Argentina"),
+    xlim=c(-124,-35),  #longitude (left, right)
+    ylim=c(-35,49),    #latitude  (bottom, top)
+    col="gray90",
+    fill=T)   
+#plotting mosquito study sites
+points(mosquito$Long_dec, mosquito$Lat_dec, 
+       pch=21, 
+       col="white",
+       bg="black",
+       lwd=2,
+       cex=5)
+dev.off()
+
+
