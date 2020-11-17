@@ -101,4 +101,40 @@ points(mosquito$Long_dec, mosquito$Lat_dec,
        cex=5)
 dev.off()
 
+#17 November 2020
+#Temporal publication series of the 20
+#articles that we have chosen for the
+#review
 
+#Specific database to plot this graph
+TempSeries = read.table("./Analisis/MosquitoYearPubs.txt", header=T)
+head(TempSeries)
+
+png("Mosquito_TempSer.png", units="in", width=8, height=4, res=300)
+
+#Plot
+plot(TempSeries$Year,TempSeries$Publications,
+  ylim = c(1,4),
+  las=1,
+  xlab = "",
+  ylab = "Publications",
+  type="b",
+  axes=F)
+
+#Y axis
+axis(2,at=c(1:4),labels=c(1:4),las=1)
+
+#X axis
+axis(1,at=levels(as.factor(TempSeries$Year)),labels=F,las=3)
+
+#X axis labels
+text(x = levels(as.factor(TempSeries$Year)),
+     y = par("usr")[3] - 0.45,
+     labels = levels(as.factor(TempSeries$Year)),
+     xpd = NA,
+     ## Rotate the labels by 35 degrees.
+     srt = 40,
+     cex = 1,
+     adj=0.7)
+
+dev.off()
