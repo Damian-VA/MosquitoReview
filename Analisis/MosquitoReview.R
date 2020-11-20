@@ -138,3 +138,58 @@ text(x = levels(as.factor(TempSeries$Year)),
      adj=0.7)
 
 dev.off()
+
+
+# Lupita's map 18-Nov-20 ----
+library(tidyverse)
+library(ggthemes) # for a mapping theme
+# if you have a more recent version of ggplot2, it seems to clash with the ggalt package
+# installing this version of the ggalt package from GitHub solves it
+# You might need to also restart your RStudio session
+devtools::install_github("eliocamp/ggalt@new-coord-proj") # for 
+library(praise)
+library(ggalt)  
+
+library(ggrepel)  # for annotations
+library(viridis)  # for nice colours
+library(broom)  # for cleaning up models
+devtools::install_github("wilkox/treemapify")
+library(treemapify)  # for making area graphs
+library(wesanderson)  # for nice colours
+library(devtools)
+library(ellipsis)
+
+# Data
+dir()
+mosquitos <- read_csv("Mosquito_Review.csv")
+view(mosquitos)
+str(mosquitos)
+mosquitos <- dplyr::select(mosquitos, LatN_dec, LongW_dec, author_key, MosquitoSpecies1, Year ) 
+names(mosquitos) <- c("lat", "long", "author", "species", "year")
+mosquitos<-mosquitos[!(mosquitos$author=="Komar2018"| mosquitos$author=="NA"),]
+mosquitos$long <- as.numeric (mosquitos$long)
+mosquitos$lat <- as.numeric (mosquitos$lat)
+mosquitos$species <- as.factor (mosquitos$species)
+str(mosquitos)
+view(mosquitos)
+
+# Get the shape of America
+america <- map_data("world", region = c("USA", "Canada", "Argentina","Bolivia", "Brazil", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador","El Salvador", "Guatemala", "Haití", "Honduras", "Mexico", "Nicaragua", "Panama", "Paraguay","Peru","Republica Dominicana","Uruguay","Venezuela", "Puerto Rico", "Guayana Francesa", "San Bartolomé", "Guadalupe"))
+
+# A very basic map
+(mosquitos_map1 <- ggplot() +
+    geom_map(map = america, data = america,
+             aes(long, lat, map_id = region), 
+             color = "gray80", fill = "gray80", size = 0.1) +
+    # Add points for the site locations
+    geom_point(data = mosquitos, 
+               aes(x = long, y = lat),
+               colour = "#3A5FCD") +
+    theme_classic())
+ggsave(mosquitos_map1, filename = "mosquitos_map.png",
+       height = 5, width = 8)
+
+
+
+
+# Richness barplots 20-Nov-20 ----
