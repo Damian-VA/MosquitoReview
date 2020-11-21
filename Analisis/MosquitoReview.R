@@ -587,6 +587,62 @@ ggsave(mosquitos_map1, filename = "mosquitos_map_noauthors.png",
 
 ggsave(mosquitos_map2, filename = "mosquitos_map_new.png",
        height = 7, width = 9)
+
 # Disturbed vs. urban barplots 21-Nov-20----
 mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
-mosq = mosq[order(mosq$mosquito_sp),]
+
+#How many mosquito species
+mosqFULL = mosq[!(duplicated(mosq$mosquito)),]
+length(mosqFULL$mosquito_sp)
+# 67 spp.
+
+#How many mosquito species whose blood hosts
+#observations were made in both disturbed and
+#wild environments
+mosqBOTH = mosq[(duplicated(mosq$mosquito)),]
+length(mosqBOTH$mosquito_sp)
+# 16 spp.
+
+#create new data frame with only those
+#species that appear in both environments
+#(16 spp. x 2 environments = 32 rows)
+mosqDW = mosq[duplicated(mosq$mosquito_sp)|duplicated(mosq$mosquito_sp, fromLast = T),]
+
+#mosqDW = mosqDW[order(mosqDW$mosquito_sp,-mosqDW$host),]
+
+#Barplot disturbed vs. wild host number per
+#mosquito species
+#Save as image
+png("disturbedVSwild.png", units="in", width=12, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(1.5,3,0,1.5), cex=1)
+
+#Mosquito species names vector
+mosquitoSpecies<-gsub("_"," ",mosqDW$mosquito_sp)
+
+#Barplot
+barplot(mosqDW$host,
+  horiz = T,
+  xlab= "",
+  xlim=c(0,60),
+  ylab="",
+  xaxt="n",
+  names.arg = mosquitoSpecies,
+  las=1,
+  font=3,
+  cex.axis = 2,
+  col = c("gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen","gray90","seagreen"))
+
+axis(1,at=seq(from=0,to=60,by=10),labels = seq(from=0,to=60,by=10), cex.axis=1.5)
+
+#X axis label
+text(x = 34,
+     y = par("usr")[3] - 3,
+     labels = "Number of bloodmeal source hosts",
+     xpd = NA,
+     srt = 0,
+     cex = 2,
+     adj=0.7)
+
+dev.off()
