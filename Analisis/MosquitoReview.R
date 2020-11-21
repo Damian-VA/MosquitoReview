@@ -508,3 +508,69 @@ wilcox.test(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"],mosquitos
 wilcox.test(wildMaxHost$host,distMaxHost$host)
 #W = 924.5, p-value = 0.3387
 
+
+# Lupita's updated map 20-Nov-20----
+
+# Packages #
+library(tidyverse)
+library(ggthemes) # for a mapping theme
+# if you have a more recent version of ggplot2, it seems to clash with the ggalt package
+# installing this version of the ggalt package from GitHub solves it
+# You might need to also restart your RStudio session
+devtools::install_github("eliocamp/ggalt@new-coord-proj") # for 
+library(praise)
+library(ggalt)  
+
+library(ggrepel)  # for annotations
+library(viridis)  # for nice colours
+library(broom)  # for cleaning up models
+devtools::install_github("wilkox/treemapify")
+library(treemapify)  # for making area graphs
+library(wesanderson)  # for nice colours
+library(devtools)
+library(ellipsis)
+
+# Data #
+dir()
+
+mosquitos1 <- read_csv("Mosquito_map.csv")
+view(mosquitos1)
+str(mosquitos1)
+# Get the shape of America #
+america <- map_data("world", region = c("USA", "Canada", "Argentina","Bolivia", "Brazil", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador","El Salvador", "Guatemala", "Haití", "Honduras", "Mexico", "Nicaragua", "Panama", "Paraguay","Peru","Republica Dominicana","Uruguay","Venezuela", "Puerto Rico", "Guayana Francesa", "San Bartolomé", "Guadalupe"))
+
+# MAP without authors 
+(mosquitos_map1 <- ggplot() +
+    geom_map(map = america, data = america,
+             aes(long, lat, map_id = region), 
+             color = "gray80", fill = "gray80", size = 0.3) +
+    coord_proj(paste0("+proj=wintri"),
+               xlim = c(-125, -30)) +
+    geom_point(data = mosquitos1,
+               aes(x =lon, y = lat, fill = landscape),
+               alpha = 0.8, size = 6, colour =
+                 "grey30", shape = 21)+
+    theme_map(base_size = 20) + theme(legend.position = "left"))
+
+ggsave(mosquitos_map1, filename = "mosquitos_map_noauthors.png",
+       height = 7, width = 9)
+#map with authors 
+
+(mosquitos_map2 <- ggplot() +
+    geom_map(map = america, data = america,
+             aes(long, lat, map_id = region), 
+             color = "gray80", fill = "gray80", size = 0.3) +
+    coord_proj(paste0("+proj=wintri"),
+               xlim = c(-125, -30)) +
+    geom_point(data = mosquitos1,
+               aes(x =lon, y = lat, fill = landscape),
+               alpha = 0.8, size = 6, colour =
+                 "grey30", shape = 21)+
+    theme_map(base_size = 20) + theme(legend.position = "left") +
+    geom_label_repel(data = mosquitos1,
+                     aes(x = lon, y = lat,
+                         label = author),
+                     box.padding = 1, size = 3, nudge_x= 0.5, nudge_y = 0.5))
+
+ggsave(mosquitos_map2, filename = "mosquitos_map_new.png",
+       height = 7, width = 9)
