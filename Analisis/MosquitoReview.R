@@ -196,13 +196,13 @@ ggsave(mosquitos_map1, filename = "mosquitos_map.png",
 mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
 names(mosquitos)
 
-#New column of landscape with two levels:
-#disturbed (urban, rural) and wild (wild)
-mosquitos$Landscape2 = mosquitos$Landscape1
-levels(mosquitos$Landscape2) <- c(levels(mosquitos$Landscape2), "disturbed")
-mosquitos$Landscape2[mosquitos$Landscape2 == 'rural'] <- 'disturbed'
-mosquitos$Landscape2[mosquitos$Landscape2 == 'urban'] <- 'disturbed'
-mosquitos$Landscape2 = droplevels(mosquitos$Landscape2)
+# #New column of landscape with two levels:
+# #disturbed (urban, rural) and wild (wild)
+# mosquitos$Landscape2 = mosquitos$Landscape1
+# levels(mosquitos$Landscape2) <- c(levels(mosquitos$Landscape2), "disturbed")
+# mosquitos$Landscape2[mosquitos$Landscape2 == 'rural'] <- 'disturbed'
+# mosquitos$Landscape2[mosquitos$Landscape2 == 'urban'] <- 'disturbed'
+# mosquitos$Landscape2 = droplevels(mosquitos$Landscape2)
 
 # #Creating host richness column
 # 
@@ -508,6 +508,19 @@ wilcox.test(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"],mosquitos
 wilcox.test(wildMaxHost$host,distMaxHost$host)
 #W = 924.5, p-value = 0.3387
 
+#_________________________________________
+
+disturbedVector = rep("disturbed",length(distMaxHost$mosquito))
+disturbedTable = cbind(distMaxHost,disturbedVector)
+colnames(disturbedTable) = c("mosquito_sp","host","landscape")
+
+wildVector = rep("wild",length(wildMaxHost$mosquito))
+wildTable = cbind(wildMaxHost,wildVector)
+colnames(wildTable) = c("mosquito_sp","host","landscape")
+
+distVSwild = rbind(disturbedTable,wildTable)
+distVSwild = distVSwild[order(distVSwild$mosquito_sp),]
+write.csv(distVSwild, file="./Analisis/mosquito_environment.csv", row.names = F)
 
 # Lupita's updated map 20-Nov-20----
 
@@ -574,3 +587,6 @@ ggsave(mosquitos_map1, filename = "mosquitos_map_noauthors.png",
 
 ggsave(mosquitos_map2, filename = "mosquitos_map_new.png",
        height = 7, width = 9)
+# Disturbed vs. urban barplots 21-Nov-20----
+mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
+mosq = mosq[order(mosq$mosquito_sp),]
