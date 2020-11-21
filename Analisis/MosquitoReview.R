@@ -290,6 +290,10 @@ distMaxHost = distFreq[!(duplicated(distFreq$mosquito)),]
 #hosts per mosquito species) from max to min
 distMaxHost = distMaxHost[order(-distMaxHost$host),]
 
+#Number of mosquito species in disturbed environments
+length(distMaxHost$mosquito)
+# 33 spp.
+
 #Disturbed environment mosquito host frequencies represented in a barplot
 
 #Save as image
@@ -421,6 +425,10 @@ wildMaxHost = wildFreq[!(duplicated(wildFreq$mosquito)),]
 #the maximum amount possible of bloodmeal source
 #hosts per mosquito species) from max to min
 wildMaxHost = wildMaxHost[order(-wildMaxHost$host),]
+
+#Number of mosquito species in wild environments
+length(wildMaxHost$mosquito)
+# 50 spp.
 
 #Wild environment mosquito host frequencies
 #represented in a barplot
