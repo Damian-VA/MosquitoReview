@@ -208,19 +208,19 @@ names(mosquitos)
 # 
 # #Empty vector to fill it with values
 # RichnessVector = numeric()
-#
+# 
 # #Loop to extrac host richness per row
 # for(i in 1:length(mosquitos$BloodSource1)){
 # 
-#   
+# 
 #   #Numeric vector of hosts per row: each host's
-#   #ID is the number of letters of its name 
+#   #ID is the number of letters of its name
 #   #(ex. "Bos_taurus" ID is "10")
-#   HostsPerRow = as.numeric(mosquitos[i,17:72]) 
-#   
+#   HostsPerRow = as.numeric(mosquitos[i,17:72])
+# 
 #   #Host richness per row (length of hosts' IDs)
-#   HostRichness = length(HostsPerRow[!is.na(HostsPerRow)]) 
-#   
+#   HostRichness = length(HostsPerRow[!is.na(HostsPerRow)])
+# 
 #   #Fill the empty vector with host richness values
 #   RichnessVector = c(RichnessVector,HostRichness)
 # 
@@ -230,7 +230,7 @@ names(mosquitos)
 # #mosquitos' database with the values recovered
 # #in the loop
 # mosquitos$host_richness = RichnessVector
-#
+# 
 # write.csv(mosquitos,file="./Analisis/Mosquito_Review.csv")
 
 #Boxplot of landscape vs. host richness
@@ -242,19 +242,19 @@ plot(mosquitos$Landscape2, mosquitos$host_richness)
 
 #_____________________________________________
 
-#Number of hosts observations in disturbed: 123
+#Number of hosts observations in disturbed: 118
 length(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])
 
-#Mean host observations in disturbed: 5.512195
+#Mean host observations in disturbed: 5.466102
 mean(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])
 
 #Median host observations in disturbed: 5
 median(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])
 
-#Standard deviation host observations in disturbed: 5.569775
+#Standard deviation host observations in disturbed: 5.503196
 sd(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])
 
-#Standard error host observations in disturbed: 0.5042637
+#Standard error host observations in disturbed: 0.5087706
 sd(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])/
   sqrt(length(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"])-1)
 
@@ -292,7 +292,7 @@ distMaxHost = distMaxHost[order(-distMaxHost$host),]
 
 #Number of mosquito species in disturbed environments
 length(distMaxHost$mosquito)
-# 33 spp.
+# 32 spp.
 
 #Disturbed environment mosquito host frequencies represented in a barplot
 
@@ -300,7 +300,7 @@ length(distMaxHost$mosquito)
 png("Disturbed_Hosts.png", units="in", width=12, height=15, res=300)
 
 #Overall plot settings
-par(mai=c(1.5,3,0,1.5), cex=1)
+par(mai=c(1.5,3,0,1.5), cex=1.2)
 
 #Mosquito species names vector
 mosquitoSpecies<-gsub("_"," ",distMaxHost$mosquito)
@@ -316,10 +316,11 @@ barplot(sort(distMaxHost$host),horiz = T,
   font=3,
   cex.axis = 2,
   col = "grey90")
+
 axis(1,at=seq(from=0,to=35,by=10),labels = seq(from=0,to=35,by=10), cex.axis=1.5)
 
 #X axis label
-text(x = 22,
+text(x = 26.5,
      y = par("usr")[3] - 3,
      labels = "Number of bloodmeal source hosts (disturbed)",
      xpd = NA,
@@ -328,64 +329,64 @@ text(x = 22,
      adj=0.7)
 
 #Mosquito species with 1 host
-text(2,3,labels = "1", cex=1.5)
+text(2,1.5,labels = "1", cex=1.5)
 
 #Mosquito species with 2 hosts
-text(3,9,labels = "2", cex=1.5)
+text(3,7.5,labels = "2", cex=1.5)
 
 #Mosquito species with 3 hosts
-text(4,14,labels = "3", cex=1.5)
+text(4,11.5,labels = "3", cex=1.5)
 
 #Mosquito species with 4 hosts
-text(5,16.5,labels = "4", cex=1.5)
+text(5,12.7,labels = "4", cex=1.5)
 
 #Mosquito species with 5 hosts
-text(6,21,labels = "5", cex=1.5)
+text(6,18.5,labels = "5", cex=1.5)
 
 #Mosquito species with 6 hosts
-text(7,27,labels = "6", cex=1.5)
+text(7,25.5,labels = "6", cex=1.5)
 
 #Mosquito species with 7 hosts
-text(8,32,labels = "7", cex=1.5)
+text(8,29,labels = "7", cex=1.5)
 
 #Mosquito species with 9 hosts
-text(10,34.5,labels = "9", cex=1.5)
+text(9.5,30.7,labels = "9", cex=1.5)
 
 #Mosquito species with 10 hosts
-text(11,35.5,labels = "10", cex=1.5)
+text(11,32,labels = "10", cex=1.5)
 
 #Culex erraticus with 17 hosts
-text(18,36.5,labels = "17", cex=1.5)
+text(17.5,33.2,labels = "17", cex=1.5)
 
 #Culex restuans with 23 hosts
-text(24,38,labels = "23", cex=1.5)
+text(24,34.2,labels = "23", cex=1.5)
 
 #Aedes vexans with 30 hosts
-text(31,39,labels = "30", cex=1.5)
+text(30.5,35.5,labels = "30", cex=1.5)
 
 #Culex quinquefasciatus with 31 hosts
-text(32,40.5,labels = "31", cex=1.5)
+text(32,36.8,labels = "31", cex=1.5)
 
 #Culex pipiens with 32 hosts
-text(33,41.7,labels = "32", cex=1.5)
+text(33,38,labels = "32", cex=1.5)
 
 dev.off()
 
 #__________________________________________
 
-#Number of host observations in wild: 84
+#Number of host observations in wild: 88
 length(mosquitos$host_richness[mosquitos$Landscape2=="wild"])
 
-#Mean host observations in wild: 6.107143
+#Mean host observations in wild: 5.397727
 mean(mosquitos$host_richness[mosquitos$Landscape2=="wild"])
 
-#Median host observations in wild: 6
+#Median host observations in wild: 5
 median(mosquitos$host_richness[mosquitos$Landscape2=="wild"])
 
-#Standard deviation host observations in wild: 6.230546
+#Standard deviation host observations in wild: 6.114877
 sd(mosquitos$host_richness[mosquitos$Landscape2=="wild"])
 
-#Standard deviation host observations in wild: 0.6838913
+#Standard deviation host observations in wild: 0.6555836
 sd(mosquitos$host_richness[mosquitos$Landscape2=="wild"])/
   sqrt(length(mosquitos$host_richness[mosquitos$Landscape2=="wild"])-1)
 
@@ -437,7 +438,7 @@ length(wildMaxHost$mosquito)
 png("Wild_Hosts.png", units="in", width=12, height=15, res=300)
 
 #Overall plot settings
-par(mai=c(1.5,3,0,1.5), cex=1)
+par(mai=c(1.5,3,0,1.5), cex=1.2)
 
 #Mosquito species names vector
 mosquitoSpecies<-gsub("_"," ",wildMaxHost$mosquito)
@@ -453,10 +454,11 @@ barplot(sort(wildMaxHost$host),horiz = T,
   font=3,
   cex.axis = 2,
   col = "seagreen")
+
 axis(1,at=seq(from=0,to=60,by=10),labels = seq(from=0,to=60,by=10), cex.axis=1.5)
 
 #X axis label
-text(x = 34,
+text(x = 40,
      y = par("usr")[3] - 5,
      labels = "Number of bloodmeal source hosts (wild)",
      xpd = NA,
@@ -465,40 +467,40 @@ text(x = 34,
      adj=0.7)
 
 #Mosquito species with 1 host
-text(2,3,labels = "1", cex=1.5)
+text(2,4.5,labels = "1", cex=1.5)
 
 #Mosquito species with 2 hosts
-text(3,9,labels = "2", cex=1.5)
+text(3,12,labels = "2", cex=1.5)
 
 #Mosquito species with 3 hosts
-text(4,13,labels = "3", cex=1.5)
+text(4,17,labels = "3", cex=1.5)
 
 #Mosquito species with 4 hosts
-text(5,18,labels = "4", cex=1.5)
+text(5,24,labels = "4", cex=1.5)
 
 #Mosquito species with 5 hosts
-text(6,23,labels = "5", cex=1.5)
+text(6,29.5,labels = "5", cex=1.5)
 
 #Mosquito species with 6 hosts
-text(7,27.5,labels = "6", cex=1.5)
+text(7,34.5,labels = "6", cex=1.5)
 
 #Mosquito species with 7 hosts
-text(8,34,labels = "7", cex=1.5)
+text(8,43.5,labels = "7", cex=1.5)
 
 #Mosquito species with 8 hosts
-text(9,45,labels = "8", cex=1.5)
+text(9,52,labels = "8", cex=1.5)
 
 #Mosquito species with 9 hosts
-text(10,51.5,labels = "9", cex=1.5)
+text(10,56,labels = "9", cex=1.5)
 
 #Culex territans with 12 hosts
-text(14,53.5,labels = "12", cex=1.5)
+text(13,57,labels = "12", cex=1.5)
 
 #Culex peccator with 20 hosts
-text(22,54.5,labels = "20", cex=1.5)
+text(22,58.2,labels = "20", cex=1.5)
 
 #Culex erraticus with 56 hosts
-text(58,56,labels = "56", cex=1.5)
+text(58,59.5,labels = "56", cex=1.5)
 
 dev.off()
 
@@ -507,9 +509,7 @@ dev.off()
 #Wilcoxon test because host observations
 #don't follow a normal distribution
 wilcox.test(mosquitos$host_richness[mosquitos$Landscape2=="disturbed"],mosquitos$host_richness[mosquitos$Landscape2=="wild"])
-#W = 4107.5, p-value = 0.01183
-#There is a difference in mosquito host richness
-#amongst disturbed and wild environments
+#W = 4823, p-value = 0.3802
 
 #Wilcoxon test for maximum amount
 #of hosts of wild vs. disturbed
@@ -602,7 +602,7 @@ mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
 #How many mosquito species
 mosqFULL = mosq[!(duplicated(mosq$mosquito)),]
 length(mosqFULL$mosquito_sp)
-# 67 spp.
+# 66 spp.
 
 #How many mosquito species whose blood hosts
 #observations were made in both disturbed and
@@ -660,17 +660,8 @@ dev.off()
 #Make mosquito species names larger, unique
 #and both breaks for disturbed and wild must
 #be glued to each other
-
-library(lattice)
-mosqDW
-
-
-barchart(host~mosquito_sp,
-  data=mosqDW,
-  groups=landscape,
-  scales=list(x=list(rot=90,cex=0.8)),
-  horizontal=T)
-
+mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
+mosqDW = mosq[duplicated(mosq$mosquito_sp)|duplicated(mosq$mosquito_sp, fromLast = T),]
 
 #Separating hosts in wild and hosts in disturbed
 #for those 15 mosquito species that have hosts in
@@ -726,3 +717,29 @@ text(x = 34,
      adj=0.7)
 
 dev.off()
+# Hosts class 23-Nov-20----
+mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
+names(mosquitos)
+
+#Extracting mosquito species, host richness,
+#host Class and landscape (disturbed or wild)
+mos = mosquitos[,c(10,11,93,73:76,78,9)]
+colnames(mos) = c("sp","host","landscape","mammalia","aves","amphibia","reptilia","location","id")
+
+
+#How many samples per mosquito species we have?
+mosSamples = as.data.frame(table(mos$sp))
+mosSamples = mosSamples[order(-mosSamples$Freq),]
+mosSamples
+#Aedes scapularis has 25 samples, those
+#aren't true replicates for we only have
+#21 studies. That means, Aedes scapularis was
+#sampled more than once in, at least, one
+#study. Ergo this samples are pseudoreplicated
+
+#Join species and study ID
+mos$spID = paste(mos$sp,mos$id,sep = "::")
+mosReplicates = as.data.frame(table(mos$spID))
+mosReplicates = mosReplicates[order(-mosReplicates$Freq),]
+head(mosReplicates,7)
+head(mosSamples,7)
