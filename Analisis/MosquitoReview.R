@@ -654,3 +654,75 @@ text(x = 34,
      adj=0.7)
 
 dev.off()
+
+#Corrections 23-November-20
+
+#Make mosquito species names larger, unique
+#and both breaks for disturbed and wild must
+#be glued to each other
+
+library(lattice)
+mosqDW
+
+
+barchart(host~mosquito_sp,
+  data=mosqDW,
+  groups=landscape,
+  scales=list(x=list(rot=90,cex=0.8)),
+  horizontal=T)
+
+
+#Separating hosts in wild and hosts in disturbed
+#for those 15 mosquito species that have hosts in
+#both environments
+mosqDW
+wildData = mosqDW[mosqDW$landscape=="wild",]
+wildData = wildData[,c(1,2)]
+colnames(wildData) = c("mosquito","hostsInWild")
+disturbedData = mosqDW[mosqDW$landscape=="disturbed",]
+disturbedData = disturbedData[,c(1,2)]
+colnames(disturbedData) = c("mosquito","hostsInDisturbed")
+wildDistDataframe = merge(wildData,disturbedData, by="mosquito")
+
+#Converting dataframe to matrix
+wildDistMatrix = rbind(as.numeric(wildDistDataframe$hostsInWild),as.numeric(wildDistDataframe$hostsInDisturbed))
+rownames(wildDistMatrix) = c("wild","disturbed")
+colnames(wildDistMatrix) = wildDistDataframe$mosquito
+
+#Save as image
+png("disturbedVSwild.png", units="in", width=15, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(1.5,5,0,0), cex=2)
+
+#Bar colors
+environmentColors = c("seagreen","gray90")
+
+#Bar names
+mosquitoSpp <- gsub("_"," ",wildDistDataframe$mosquito)
+
+barplot(wildDistMatrix,
+  beside=T,
+  horiz = T,
+  xlim=c(0,65),
+  names.arg = mosquitoSpp,
+  xlab="",
+  ylab="",
+  xaxt="n",
+  las=1,
+  font=3,
+  col = environmentColors)
+
+#X axis values
+axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
+
+#X axis label
+text(x = 34,
+     y = par("usr")[3] - 4.5,
+     labels = "Number of bloodmeal source hosts",
+     xpd = NA,
+     srt = 0,
+     cex = 1.2,
+     adj=0.7)
+
+dev.off()
