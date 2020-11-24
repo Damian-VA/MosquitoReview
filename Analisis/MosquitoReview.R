@@ -664,7 +664,7 @@ mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
 mosqDW = mosq[duplicated(mosq$mosquito_sp)|duplicated(mosq$mosquito_sp, fromLast = T),]
 
 #Separating hosts in wild and hosts in disturbed
-#for those 15 mosquito species that have hosts in
+#for those 16 mosquito species that have hosts in
 #both environments
 mosqDW
 wildData = mosqDW[mosqDW$landscape=="wild",]
@@ -726,11 +726,11 @@ names(mosquitos)
 mos = mosquitos[,c(10,11,93,73:76,78,9)]
 colnames(mos) = c("sp","host","landscape","mammalia","aves","amphibia","reptilia","location","id")
 
-
 #How many samples per mosquito species we have?
 mosSamples = as.data.frame(table(mos$sp))
 mosSamples = mosSamples[order(-mosSamples$Freq),]
-mosSamples
+colnames(mosSamples) = c("mosquito","samples")
+write.csv(mosSamples,file="./Analisis/pseudoreplication.csv", row.names = F)
 #Aedes scapularis has 25 samples, those
 #aren't true replicates for we only have
 #21 studies. That means, Aedes scapularis was
@@ -738,8 +738,33 @@ mosSamples
 #study. Ergo this samples are pseudoreplicated
 
 #Join species and study ID
-mos$spID = paste(mos$sp,mos$id,sep = "::")
+mos$spID = paste(mos$sp,mos$id,sep = ",")
 mosReplicates = as.data.frame(table(mos$spID))
 mosReplicates = mosReplicates[order(-mosReplicates$Freq),]
+colnames(mosReplicates) = c("mosquito","true_replicates")
 head(mosReplicates,7)
 head(mosSamples,7)
+write.csv(mosReplicates,file="./Analisis/replication.csv", row.names = F)
+
+#Stacked barplot 23-Nov-20----
+mosquitoes <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
+names(mosquitoes)
+
+#Order from more hosts to less hosts
+mosquitoes[order(-mosquitoes$host_richness),]
+
+#Arranging a dataframe: species, mammal host, avian,
+#amphibian, reptilian
+hostClass = mosquitoes[,c(10,73,74,75,76)]
+colnames(hostClass) = c("sp","mam","ave","amp","rep")
+hostClass
+
+#Creating new column with only the maximum
+#observation number of hosts per mosquito
+#species
+hostClassMax=ave(wildFreq$host,wildFreq$mosquito,FUN=max)
+
+#Converting dataframe to matrix
+wildDistMatrix = rbind(as.numeric(wildDistDataframe$hostsInWild),as.numeric(wildDistDataframe$hostsInDisturbed))
+rownames(wildDistMatrix) = c("wild","disturbed")
+colnames(wildDistMatrix) = wildDistDataframe$mosquito
