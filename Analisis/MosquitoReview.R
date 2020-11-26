@@ -596,7 +596,7 @@ ggsave(mosquitos_map1, filename = "mosquitos_map_noauthors.png",
 ggsave(mosquitos_map2, filename = "mosquitos_map_new.png",
        height = 7, width = 9)
 
-#Disturbed vs. urban barplots 21-Nov-20----
+#Disturbed vs. wild barplots 21-Nov-20----
 mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
 
 #How many mosquito species
@@ -679,12 +679,13 @@ wildDistDataframe = merge(wildData,disturbedData, by="mosquito")
 wildDistMatrix = rbind(as.numeric(wildDistDataframe$hostsInWild),as.numeric(wildDistDataframe$hostsInDisturbed))
 rownames(wildDistMatrix) = c("wild","disturbed")
 colnames(wildDistMatrix) = wildDistDataframe$mosquito
+wildDistMatrix=wildDistMatrix[,ncol(wildDistMatrix):1]
 
 #Save as image
 png("disturbedVSwild.png", units="in", width=15, height=15, res=300)
 
 #Overall plot settings
-par(mai=c(1.5,5,0,0), cex=2)
+par(mai=c(1.5,8,0,0), cex=2)
 
 #Bar colors
 environmentColors = c("seagreen","gray90")
@@ -696,19 +697,20 @@ barplot(wildDistMatrix,
   beside=T,
   horiz = T,
   xlim=c(0,65),
-  names.arg = mosquitoSpp,
+  names.arg = rev(mosquitoSpp),
   xlab="",
   ylab="",
   xaxt="n",
   las=1,
   font=3,
+  cex.names = 1.5,
   col = environmentColors)
 
 #X axis values
 axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
 
 #X axis label
-text(x = 34,
+text(x = 39,
      y = par("usr")[3] - 4.5,
      labels = "Number of bloodmeal source hosts",
      xpd = NA,
@@ -746,7 +748,7 @@ head(mosReplicates,7)
 head(mosSamples,7)
 write.csv(mosReplicates,file="./Analisis/replication.csv", row.names = F)
 
-#Dist VS urban barplot with aegypti and albopictus 25-Nov-20----
+#Dist VS wild barplot with aegypti and albopictus 25-Nov-20----
 
 mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
 mosqDW = mosq[duplicated(mosq$mosquito_sp)|duplicated(mosq$mosquito_sp, fromLast = T),]
