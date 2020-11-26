@@ -101,7 +101,7 @@ points(mosquito$Long_dec, mosquito$Lat_dec,
        cex=5)
 dev.off()
 
-#17 November 2020----
+#Temporal trend 17-Nov-2020----
 #Temporal publication series of the 20
 #articles that we have chosen for the
 #review
@@ -140,7 +140,7 @@ text(x = levels(as.factor(TempSeries$Year)),
 dev.off()
 
 
-# Lupita's map 18-Nov-20 ----
+#Lupita's map 18-Nov-20 ----
 library(tidyverse)
 library(ggthemes) # for a mapping theme
 # if you have a more recent version of ggplot2, it seems to clash with the ggalt package
@@ -192,7 +192,7 @@ ggsave(mosquitos_map1, filename = "mosquitos_map.png",
 
 
 
-# Richness barplots 20-Nov-20 ----
+#Richness barplots 20-Nov-20 ----
 mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
 names(mosquitos)
 
@@ -530,7 +530,7 @@ distVSwild = rbind(disturbedTable,wildTable)
 distVSwild = distVSwild[order(distVSwild$mosquito_sp),]
 write.csv(distVSwild, file="./Analisis/mosquito_environment.csv", row.names = F)
 
-# Lupita's updated map 20-Nov-20----
+#Lupita's updated map 20-Nov-20----
 
 # Packages #
 library(tidyverse)
@@ -596,7 +596,7 @@ ggsave(mosquitos_map1, filename = "mosquitos_map_noauthors.png",
 ggsave(mosquitos_map2, filename = "mosquitos_map_new.png",
        height = 7, width = 9)
 
-# Disturbed vs. urban barplots 21-Nov-20----
+#Disturbed vs. urban barplots 21-Nov-20----
 mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
 
 #How many mosquito species
@@ -717,7 +717,7 @@ text(x = 34,
      adj=0.7)
 
 dev.off()
-# Hosts class 23-Nov-20----
+#Rep and Pseudorep 23-Nov-20----
 mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
 names(mosquitos)
 
@@ -746,25 +746,160 @@ head(mosReplicates,7)
 head(mosSamples,7)
 write.csv(mosReplicates,file="./Analisis/replication.csv", row.names = F)
 
-#Stacked barplot 23-Nov-20----
-mosquitoes <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
-names(mosquitoes)
+#Dist VS urban barplot with aegypti and albopictus 25-Nov-20----
 
-#Order from more hosts to less hosts
-mosquitoes[order(-mosquitoes$host_richness),]
+mosq <- read.csv("./Analisis/mosquito_environment.csv",header=T)
+mosqDW = mosq[duplicated(mosq$mosquito_sp)|duplicated(mosq$mosquito_sp, fromLast = T),]
 
-#Arranging a dataframe: species, mammal host, avian,
-#amphibian, reptilian
-hostClass = mosquitoes[,c(10,73,74,75,76)]
-colnames(hostClass) = c("sp","mam","ave","amp","rep")
-hostClass
+#Separating hosts in wild and hosts in disturbed
+#for those 16 mosquito species that have hosts in
+#both environments
+mosqDW
+wildData = mosqDW[mosqDW$landscape=="wild",]
+wildData = wildData[,c(1,2)]
+colnames(wildData) = c("mosquito","hostsInWild")
+disturbedData = mosqDW[mosqDW$landscape=="disturbed",]
+disturbedData = disturbedData[,c(1,2)]
+colnames(disturbedData) = c("mosquito","hostsInDisturbed")
+wildDistDataframe = merge(wildData,disturbedData, by="mosquito")
 
-#Creating new column with only the maximum
-#observation number of hosts per mosquito
-#species
-hostClassMax=ave(wildFreq$host,wildFreq$mosquito,FUN=max)
+#Adding Aedes aegypti and Aedes albopictus to
+#the dataframe
+AeAegypti = c("Aedes_aegypti",0,mosq$host[mosq$mosquito_sp=="Aedes_aegypti"])
+AeAlbopictus = c("Aedes_albopictus",0,mosq$host[mosq$mosquito_sp=="Aedes_albopictus"])
+wildDistDataframe2 = rbind(wildDistDataframe,AeAegypti,AeAlbopictus)
+wildDistDataframe2 = wildDistDataframe2[order(wildDistDataframe2$mosquito),]
+
 
 #Converting dataframe to matrix
-wildDistMatrix = rbind(as.numeric(wildDistDataframe$hostsInWild),as.numeric(wildDistDataframe$hostsInDisturbed))
+wildDistMatrix = rbind(as.numeric(wildDistDataframe2$hostsInWild),as.numeric(wildDistDataframe2$hostsInDisturbed))
 rownames(wildDistMatrix) = c("wild","disturbed")
-colnames(wildDistMatrix) = wildDistDataframe$mosquito
+colnames(wildDistMatrix) = wildDistDataframe2$mosquito
+wildDistMatrix=wildDistMatrix[,ncol(wildDistMatrix):1]
+
+#Save as image
+png("distVSwild_aegypti_albopictus.png", units="in", width=15, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(1.5,8,0,0), cex=2)
+
+#Bar colors
+environmentColors = c("seagreen","gray90")
+
+#Bar names
+mosquitoSpp <- gsub("_"," ",wildDistDataframe2$mosquito)
+
+barplot(wildDistMatrix,
+  beside=T,
+  horiz = T,
+  xlim=c(0,65),
+  names.arg = rev(mosquitoSpp),
+  xlab="",
+  ylab="",
+  xaxt="n",
+  las=1,
+  font=3,
+  cex.names = 1.4,
+  col = environmentColors)
+
+#X axis values
+axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
+
+#X axis label
+text(x = 39,
+     y = par("usr")[3] - 4.5,
+     labels = "Number of bloodmeal source hosts",
+     xpd = NA,
+     srt = 0,
+     cex = 1.2,
+     adj=0.7)
+
+dev.off()
+
+#Host class stacked 25-Nov-20----
+
+#Importing database and extracting the top 8
+#mosquito records with the most host richness
+#reported, with their respective number of mammal,
+#bird, amphibian and reptile hosts
+mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
+mos = mosquitos[,c(10,11,93,73:76,78,9)]
+colnames(mos) = c("sp","host","landscape","mammalia","aves","amphibia","reptilia","location","id")
+mos = mos[order(mos$sp,-mos$host),]
+mos = mos[!(duplicated(mos$sp)),]
+mos = mos[order(-mos$host),]
+mos[1:8,]
+
+#Transforming dataframe to a matrix to barplot it
+mosMatrix = rbind(as.numeric(mos$aves),as.numeric(mos$mammalia),as.numeric(mos$amphibia),as.numeric(mos$reptilia))
+rownames(mosMatrix) = c("Aves","Mammalia","Amphibia","Reptilia")
+colnames(mosMatrix) = mos$sp
+mosMatrix[,1:8]
+
+#Save as image
+png("hostClass.png", units="in", width=28, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(5,2,0,0), cex=2)
+
+#Bar colors
+hostClassColors = c("#00BFC4","#F8766D","#7CAE00","#C77CFF")
+
+#Bar names
+mosquitoSpp <- gsub("_"," ",colnames(mosMatrix[,1:20]))
+
+hostClassbp = barplot(mosMatrix[,1:20],
+  horiz = F,
+  ylim=c(0,70),
+  names.arg = mosquitoSpp,
+  xlab="",
+  ylab="",
+  xaxt="n",
+  yaxt="n",
+  las=2,
+  font=3,
+  col = hostClassColors)
+
+# #X axis values if horizontal barplots is true
+# axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
+# 
+# #X axis label if horizontal barplots is true
+# text(x = 39,
+#      y = par("usr")[3] - 4.5,
+#      labels = "Number of bloodmeal source hosts",
+#      xpd = NA,
+#      srt = 0,
+#      cex = 1.2,
+#      adj=0.7)
+
+#Y axis values if vertical barplots is true
+axis(2,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2, las=1)
+
+#Y axis label if vertical barplots is true
+text(x = par("usr")[3] - 2.5,
+     y = 35,
+     labels = "Host richness",
+     xpd = NA,
+     srt = 90,
+     cex = 1.7,
+     adj=0.7)
+
+#X axis values if vertical barplots is true
+text(x = hostClassbp,
+     y = par("usr")[3] - 3,
+     labels = mosquitoSpp,
+     xpd = NA,
+     srt = 50,
+     cex = 1.1,
+     adj = 0.99,
+     font = 3)
+
+legend(22,65,
+  legend = rownames(mosMatrix), 
+  col = hostClassColors, 
+  bty = "n",
+  pch = 16,
+  y.intersp = 3,
+  pt.cex = 2)
+
+dev.off()
