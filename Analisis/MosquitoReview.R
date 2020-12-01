@@ -842,7 +842,7 @@ mosMatrix[,1:8]
 png("hostClass.png", units="in", width=28, height=15, res=300)
 
 #Overall plot settings
-par(mai=c(5,2,0,0), cex=2)
+par(mai=c(6,2,0,0), cex=2)
 
 #Bar colors
 hostClassColors = c("#00BFC4","#F8766D","#7CAE00","#C77CFF")
@@ -892,16 +892,83 @@ text(x = hostClassbp,
      labels = mosquitoSpp,
      xpd = NA,
      srt = 50,
-     cex = 1.1,
+     cex = 1.7,
      adj = 0.99,
      font = 3)
 
-legend(22,65,
+legend(20,65,
   legend = rownames(mosMatrix), 
   col = hostClassColors, 
   bty = "n",
   pch = 16,
-  y.intersp = 3,
-  pt.cex = 2)
+  y.intersp = 1.4,
+  pt.cex=3,
+  cex=2)
 
 dev.off()
+#Checking Homo sapiens predominance 1-Dec-20----
+#We want to know the top 20 mosquitoes
+#with the biggest host richness
+mosquitos <- read.csv("./Analisis/Mosquito_Review.csv",header=T)
+mos = mosquitos[,c(10,11,93,73:76,78,9)]
+colnames(mos) = c("sp","host","landscape","mammalia","aves","amphibia","reptilia","location","id")
+mos = mos[order(mos$sp,-mos$host),]
+mos = mos[!(duplicated(mos$sp)),]
+mos = mos[order(-mos$host),]
+head(mos,20)
+
+#For each of the 20 mosquito species the number
+#of human bloodmeals in relation to the entirety of
+#mammal and total bloodmeals was manually retrieved:
+CxErra = c("Culex_erraticus",31,691,1162) #Burkett-Cadena2011
+CxPipi = c("Culex_pipiens",100,121,636) #Hamer2009
+CxQuin = c("Culex_quinquefasciatus",0,19,96) #Greenberg2013
+AeVexa = c("Aedes_vexans",11,206,213) #Greenberg2013
+CxRest = c("Culex_restuans",31,37,221) #Hamer2009
+CxPecc = c("Culex_peccator",5,8,158) #Burkett-Cadena2011
+CxTerr = c("Culex_territans",0,0,118) #Burkett-Cadena2011
+CqVene = c("Coquillettidia_venezuelensis",1,201,212) #Navia-Gine2013
+AeAegy = c("Aedes_aegypti",119,135,136) #Stenn2018
+AeMedi = c("Aedes_mediovittatus",107,217,218) #Barrera2012
+AeScap = c("Aedes_scapularis",2,16,27) #Alencar2015
+CxBast = c("Culex_bastagarius",3,26,34) #Alencar2015
+CxDecl = c("Culex_declarator",2,16,28) #Alencar2015
+CxPleu = c("Culex_pleuristriatus",3,13,26) #Alencar2015
+AeSerr = c("Aedes_serratus",2,5,11) #Alencar2015
+AnAlbi = c("Anopheles_albitarsis",3,15,32) #Alencar2015
+AnEvan = c("Anopheles_evansae",3,19,44) #DosSantosSilva2012
+ChFaja = c("Chagasia_fajardi",8,30,40) #DosSantosSilva2012
+CxUsqu = c("Culex_usquatus",0,6,12) #Alencar2015
+PsAlbi = c("Psorophora_albigenu",75,93,93) #Mucci2015
+
+#Binding as data frame the data of said 20 mosquito
+#species with the human bloodmeals, the mammal blood
+#meals and the total bloodemeals:
+MosBM = as.data.frame(rbind(CxErra,CxPipi,CxQuin,AeVexa,CxRest,CxPecc,CxTerr,CqVene,AeAegy,AeMedi,AeScap,CxBast,CxDecl,CxPleu,AeSerr,AnAlbi,AnEvan,ChFaja,CxUsqu,PsAlbi))
+colnames(MosBM) = c("Mosquito","HumanBM","MammalBM","TotalBM")
+MosBM$HumanBM=as.numeric(as.character(MosBM$HumanBM))
+MosBM$MammalBM=as.numeric(as.character(MosBM$MammalBM))
+MosBM$TotalBM=as.numeric(as.character(MosBM$TotalBM))
+
+#Adding column of human bloodmeal proportion respective
+#to mammal bloodmeal
+MosBM$HuMam = round((MosBM$HumanBM/MosBM$MammalBM),2)
+
+#Adding column of human bloodmeal proportion respective
+#to total bloodmeal
+MosBM$HuTot = round((MosBM$HumanBM/MosBM$TotalBM),2)
+
+# #Saving the data frame as "Bloodmeal Proportions
+# #of 20 mosquito species"
+# write.csv(MosBM, file = "./Analisis/BloodmealProportions_20spp.csv", row.names = F)
+
+#Table ordered so to see those mosquito species with
+#50% or more mammal bloodmeals being human
+MosBM[order(-MosBM$HuMam),]
+
+#Aedes aegypti 88%
+#Culex restuans 84%
+#Culex pipiens 83%
+#Psorophora albigenu 81%
+#Culex peccator 62%
+#Aedes mediovittatus 49%
