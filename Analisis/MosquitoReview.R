@@ -972,3 +972,195 @@ MosBM[order(-MosBM$HuMam),]
 #Psorophora albigenu 81%
 #Culex peccator 62%
 #Aedes mediovittatus 49%
+
+#litsearchr Eliza Grames 18-Dec-20----
+
+#More info about this section in the article:
+# Grames EM, Stillman AN, Tingley MW, Elphick CS.
+# An automated approach to identifying search 
+# terms for systematic reviews using keyword 
+# cooccurrence networks. Methods Ecol Evol. 
+# 2019;10:1645–1654. 
+# https ://doi.org/10.1111/2041-210X.13268
+
+#Check this website for templates:
+#https://elizagrames.github.io/litsearchr/introduction_vignette_v010.html
+#https://elizagrames.github.io/litsearchr/litsearchr_vignette_v041.html
+
+#Installation issues:
+devtools::install_github("elizagrames/litsearchr")
+# Error: Failed to install 'unknown package' from GitHub:
+#   HTTP error 404.
+#   No commit found for the ref master
+# 
+#   Did you spell the repo owner (`elizagrames`) and repo name (`litsearchr`) correctly?
+#   - If spelling is correct, check that you have the required permissions to access the repo.
+
+remotes::install_github("elizagrames/litsearchr", ref="main")
+# Installing package into ‘C:/Users/Damián/Documents/R/win-library/3.6’
+# (as ‘lib’ is unspecified)
+# * installing *source* package 'litsearchr' ...
+# ** using staged installation
+# Error in file(file, if (append) "a" else "w") : 
+#   (convertido del aviso) cannot open file 'C:/Users/Damian/Documents/R/win-library/3.6/00LOCK-litsearchr/00new/litsearchr/DESCRIPTION': No such file or directory
+# ERROR: installing package DESCRIPTION failed for package 'litsearchr'
+# * removing 'C:/Users/Damián/Documents/R/win-library/3.6/litsearchr'
+# Error: Failed to install 'litsearchr' from GitHub:
+#   (convertido del aviso) installation of package ‘C:/Users/DAMIN~1/AppData/Local/Temp/RtmpUnSQqg/file46f495a3faa/litsearchr_1.0.0.tar.gz’ had non-zero exit status
+
+#litsearchr package still hasn't been uploaded
+#to CRAN, so it isn't an R official package.
+#In order to use it one will need to individually
+#download the scripts where her functions have
+#been written. Download Grames' scripts from:
+#https://zenodo.org/record/2551701#.X9zWk9hKhaQ
+
+source("litsearchrZENODO/R/import_and_clean_data.R") #detect_database() usable_databases() import_results() deduplicate() clean_keywords()
+source("litsearchrZENODO/R/term_selection.R") #make_corpus() add_stopwords() extract_terms() make_dictionary() create_dfm() create_network() make_importance() select_ngrams() select_unigrams() find_knots() fit_splines() find_cutoff() get_keywords() reduce_graph() make_ngram_graph() condense_network() get_condensed_terms() get_similar_terms()
+source("litsearchrZENODO/R/write_scrape_test_searches.R") #get_language_data() choose_languages() language_graphs() translate_search() should_stem() write_search() available_languages() write_title_search() scrape_hits() scrape_oatd() scrape_ndltd() scrape_openthesis() check_recall() search_performance()
+source("litsearchrZENODO/R/pretty_plots.R") #make_wordle() plot_full_network()
+source("litsearchrZENODO/R/data.R") #data examples
+
+## About the package  
+# The *litsearchr* package for R is designed to partially automate search term selection and writing search strategies for systematic reviews. This vignette demonstrates its utility through a mock, example review examining the effects of fire on black-backed woodpeckers by demonstrating how the package: (1) Identifies potential keywords through the naive search input, (2) Builds a keyword co-occurence network to assist with building a more precise search strategy, (3) Uses a cutoff function to identify important changes in keyword importance, (4) Assists with grouping terms into concepts, and (5) Writes a Boolean search as a result of completion of the four previous steps.
+
+usable_databases()
+#>          Platform                                               Database
+#> 1  Web of Science                                  BIOSIS Citation Index
+#> 2  Web of Science                                      Zoological Record
+#> 3          Scopus                                                 Scopus
+#> 4           EBSCO                                Academic Search Premier
+#> 5           EBSCO                                               Agricola
+#> 6           EBSCO                                              GreenFILE
+#> 7           EBSCO                                      OpenDissertations
+#> 8           EBSCO                                          CAB Abstracts
+#> 9           EBSCO                                                MEDLINE
+#> 10          EBSCO                               Science Reference Center
+#> 11       ProQuest         Earth, Atmospheric & Aquatic Science Database?
+#> 12       ProQuest                ProQuest Dissertations & Theses Global?
+#> 13       ProQuest NTIS Database (National Technical Information Service)
+#> 14          NDLTD  Networked Digital Library of Theses and Dissertations
+#> 15           OATD                   Open Access Theses and Dissertations
+#> 16     OpenThesis                                             OpenThesis
+#> 17     CAB Direct                                        (all databases)
+#> 18       WorldCat                                                OAIster
+#> 19       WorldCat                                               WorldCat
+#> 20    Science.gov                                            Science.gov
+#> 21 IngentaConnect                                         IngentaConnect
+#> 22         PubMed                                                 PubMed
+
+## Write and conduct naive search
+# In our empirical example, we begin with a naive search intended to capture a set of relevant articles. Naive search terms: (("black-backed woodpecker" OR "picoides arcticus" OR "picoides tridactylus" AND (burn\* OR fire\*)). We ran the search in Scopus and Zoological Record (Web of Science), exporting results in .ris and .txt, respectively. These exported search results are then imported to litsearchr using the *import_results* function and next deduplicated using the *remove_duplicates* function. In some cases, it is best to run the *remove_duplicates* function two or more times, for example starting with exact matches and moving on to fuzzy matching. 
+
+# When writing a naive search, the first step is to clearly articulate the research question. This serves as the basis for identifying concept groups and naive search terms. In our case, the research question is "What processes lead to the decline in black-backed woodpecker occupancy of post-fire forest systems with time since fire?" Although the exact concept groups needed for a review will vary on a case-by-case basis, the PICO (Population Intervention Control Outcome) model used in public health and medical reviews can be transformed to work for ecology. Instead of a population, we have a study system; intervention becomes predictor variables; outcome becomes response variables. The control category doesn't translate well to ecological reviews and can generally be omitted from the search. In our case, we are interested in either the predictor (processes) or response (occupancy) variables in our system (woodpeckers in post-fire forest systems), so our search will combine the concept groups as ( (processes OR occupancy) AND fire AND woodpecker ). The "OR" operator will include all hits that have either a process term or an occupancy term. The "AND" operator will require all hits to also have a term both the fire and woodpecker category. The parentheses work just like basic order of operations; items inside parentheses are considered before items outside of parentheses. 
+# 
+# We truncated terms to include word forms by adding an asterisk (\*) to the end of a word stem. For example, occup\* will pick up occupancy, occupance, occupied, occupy, occupying, etc... We included alternate spellings (i.e. colonization and colonisation) when possible, though we did not truncate one letter earlier because coloni\* would also pick up colonies or colonial, which has a different meaning altogether. Because there are multiple ways to describe nest success, we represented this concept with two groups of terms separated by W/3. This operator forces a word to occur within a certain number of words to another word (in this case, 3 words). By combining the OR operator with W/3, we can get any articles that include the concept of nesting and success next to each other. For example, an article about "success of nestlings" would be captured because the terms occur within three words of each other and nest* captures nestlings. Because we want our naive search to be discrete (i.e. only capture results most relevant to our question to yield better keyword suggestions), we decided to only include birds in the tribe Dendropicini. We included both common names (woodpecker, sapsucker) and genus names to capture studies which used only latin species names. The bird terms were only searched in the full text because study systems are often not specified in the title, abstract, or keywords. Genus names were truncated to account for studies that refer to groups with the suffix "-ids".
+# 
+# Naive search: ( 
+#(occup\* OR occur\* OR presen\* OR coloniz\* OR colonis\* OR abundan\* OR "population size"  OR "habitat suitability" OR "habitat selection" OR persist\*) OR ( (nest\* OR reproduct* OR breed\* OR fledg\*) W/3 (succe\* OR fail\* OR surviv\*) ) OR ( surviv\* OR mortalit\* OR death\* ) OR ( "food availab\*" OR forag\* OR provision\*) OR  ( emigrat\* OR immigrat\* OR dispers\*) ) 
+#AND (fire\* OR burn\* OR wildfire\*) ) 
+#AND (woodpecker\* OR sapsucker\* OR Veniliorn\* OR Picoid\* OR Dendropic\* OR Melanerp\* OR Sphyrapic\*)
+# 
+# Searches were conducted on 10/22/18 with no date restrictions. We searched two databases on Web of Science (BIOSIS Citation Index and Zoological Record) and Scopus. Number of hits were as follows: BIOSIS (212), Zoological Record (179), and Scopus (592).
+# 
+# Although other databases could also be used, the import functions of this package are set up to work with commonly used databases and platforms in ecology or with .bib or .ris files from other databases. Instructions on how to export files to match what litsearchr is expecting are viewable with usable_databases(). 
+# 
+# The original export files should not be altered at all - none of the columns need to be removed and default headers should be left alone. These are used as signatures to detect which database a file originated from. If one of your naive searches results in more than 500 hits and you need to export multiple files from BIOSIS or Zoological Record, they can be left as separate files and don't need to be manually combined -litsearchr will do this for you. However, note that if your naive search returns more than 500 hits, the search terms are likely too broad. This lack of specificity may mean that the updated search terms returned by litsearchr will not adequately capture the desired level of inference. 
+# 
+# Optionally, if you want to return extremely specific keywords, you can conduct a critical appraisal of your naive search results to remove articles that you know aren't relevant to your question. However, if these articles are relatively rare, their keywords should be filtered out by litsearchr as unimportant.
+
+source("litsearchrGitHub/R/import_and_clean_data.R")
+
+naiveimport <- import_results(directory = "litsearchrGitHub/inst/extdata/",verbose=TRUE)
+table(naiveimport$database)
+naiveresults <- remove_duplicates(naiveimport, field = "title", method="string_osa")
+
+#19-Dec-20----
+
+source("litsearchrGitHub/R/import_and_clean_data.R")#to get the remove_duplicates() function
+
+#First import the results from different search engines databases
+#that you downloaded: in this case we used our naive search of the
+#19 of december 2020:
+# “mosquito*” 
+# AND (“landscape” OR “deforestation” OR “soil use change” OR “logging”) 
+# AND (“blood*” OR “blood meal” OR “blood meal source*” OR “host” OR “blood feeding” OR “feed*” OR “forag*”)
+#In the WoS (160 results - title and abstract search), Scopus (227 results - title and abstract
+#search) and PubMed (128 results - all fields) = 515 records (515 rows)
+
+mosquitoimport = import_results(directory = "Analisis/naive_19Dec20/", verbose=T) #429 rows, 86 records missing
+mosquitoresults = remove_duplicates(mosquitoimport, field = "title", method="string_osa") #299 rows, 130 duplicates
+write.csv(mosquitoresults,file="naiveDeduplicated_19Dec20.csv",row.names = F) #save deduplicated database
+
+
+#23-Dec-20 Sorting december articles----
+
+#All articles pooled:
+mosLup = read.csv("./Analisis/FullDatabaseMosquito_21-12-20.csv")
+length(mosLup$Title) #2137 articles recovered
+mosLup$Database = as.factor(mosLup$Database)
+length(mosLup$Database[mosLup$Database=="SCOPUS"]) #1011 scopus articles
+length(mosLup$Database[mosLup$Database=="WoS"]) #1098 WoS articles
+length(mosLup$Database[mosLup$Database=="SciELO"]) #28 SciELO articles
+
+#To deduplicate the database check
+#https://cran.r-project.org/web/packages/synthesisr/vignettes/synthesisr_vignette.html:
+library(synthesisr)
+
+#Use function deduplicate to eliminate duplicate articles by title.
+#The method is exact, which will remove articles that have identical
+# titles. This is a fairly conservative approach, so we will remove
+# them without review.
+exactMosLup = deduplicate(mosLup, match_by = "Title", method = "exact")
+#It now says that there're 1682 unique articles. Which implies
+#455 records are duplicates.
+
+#But we still need to eliminate highly similar titles: those that only
+#differ in an extra space or the use of a dash-line. For this we'll use
+#string distance:
+stringMosLup = find_duplicates(exactMosLup$Title, method = "string_osa", to_lower=T, rm_punctuation = T, threshold = 7)
+
+# We can extract the line numbers from the dataset that are likely
+# duplicated this lets us manually review those titles to confirm
+# they are duplicates:
+manual_checks <- review_duplicates(exactMosLup$Title, stringMosLup)
+length(manual_checks$title) #453 duplicates
+
+# Now we can extract unique references from our dataset: we need to
+#pass it the exact method dataset (exactMosLup) and the matching 
+#articles (stringMosLup)
+uniqueMosLup = extract_unique_references(exactMosLup, stringMosLup)
+#1455 unique articles (914 scopus, 515 WoS, 26 SciELO). 
+#682 duplicates.
+
+#______________________________________________
+#Screened 177 title and abstract Lupita's articles:
+data = read.csv("./Analisis/177articulos.csv")
+names(data)
+
+#Spot duplicates by string distance
+ddata = find_duplicates(data$Title, method = "string_osa", to_lower=T, rm_punctuation = T, threshold = 7)
+manual_checks <- review_duplicates(data$Title, ddata)
+length(manual_checks$title) #12 duplicates
+write.csv(manual_checks,"./Analisis/177duplicates.csv")
+
+#Extract unique records (eliminate duplicates)
+udata = extract_unique_references(data, ddata)
+write.csv(udata,"./Analisis/todos2.csv")
+
+#_____________________________________________
+#To the 164 unique new records the 21 records already
+#selected since september 2020 were added, for a total 
+#of 185 records:
+data = read.csv("./Analisis/todos3.csv")
+names(data)
+length(data$Title)
+#Spot duplicates by string distance
+ddata = find_duplicates(data$Title, method = "string_osa", to_lower=T, rm_punctuation = T, threshold = 7)
+manual_checks <- review_duplicates(data$Title, ddata)
+length(manual_checks$title) #12 duplicates
+write.csv(manual_checks, "./Analisis/185duplicates.csv")
+
+#Extract unique records (eliminate duplicates)
+udata = extract_unique_references(data, ddata)
+write.csv(udata,"./Analisis/todos3.csv")
