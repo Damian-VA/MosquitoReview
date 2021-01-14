@@ -1164,3 +1164,154 @@ write.csv(manual_checks, "./Analisis/185duplicates.csv")
 #Extract unique records (eliminate duplicates)
 udata = extract_unique_references(data, ddata)
 write.csv(udata,"./Analisis/todos3.csv")
+
+#14-Jan-21 Disturbed vs. wild barplots ----
+mosquitos <- read.csv("./Analisis/Mosquito_Review_39articles.csv",header=T)
+
+#__________________________________________
+#Selecting subgroup of the dataset that only encompasses "disturbed
+#environment" values
+disturbed = mosquitos[mosquitos$Landscape=="disturbed",]
+
+#Naming that subgroup "disturbed frequencies" (distFreq)
+distFreq = data.frame(disturbed$MosquitoSpecies,disturbed$HostRichness,disturbed$Landscape,disturbed$AuthorKey)
+
+#Assigning column names to distFreq
+colnames(distFreq) = c("mosquito","host","landscape","ID")
+
+#Dropping non-used levels of mosquito species in distFreq table
+distFreq$mosquito = as.factor(distFreq$mosquito)
+
+#Sorting distFreq by alphabetical order of mosquito species and
+#from max to min host number (VERY IMPORTANT STEP!!!)
+distFreq = distFreq[order(distFreq$mosquito,-distFreq$host),]
+
+#Eliminate duplicated species rows. If the distFreq data table 
+#hasn't been arranged by max to min host number, then you're 
+#going to LOOSE HOST RICHNESS so be careful about this step and
+#the previous one
+distMaxHost = distFreq[!(duplicated(distFreq$mosquito)),]
+
+#Sort distMaxHost (the table only with the maximum amount possible 
+#of bloodmeal source hosts per mosquito species) from max to min
+distMaxHost = distMaxHost[order(-distMaxHost$host),]
+
+#Number of mosquito species in disturbed environments
+length(distMaxHost$mosquito)
+# 63 spp.
+#_________________________________________
+
+#_________________________________________
+#Selecting subgroup of the dataset that only encompasses "wild 
+#environment" values
+wild = mosquitos[mosquitos$Landscape=="wild",]
+
+#Naming that subgroup "wild frequencies" (wildFreq)
+wildFreq = data.frame(wild$MosquitoSpecies,wild$HostRichness,wild$Landscape,wild$AuthorKey)
+
+#Assigning column names to wildFreq
+colnames(wildFreq) = c("mosquito","host","landscape","ID")
+
+#Dropping non-used levels of mosquito species in wildFreq table
+wildFreq$mosquito = as.factor(wildFreq$mosquito)
+
+#Sorting wildFreq by alphabetical order of mosquito species and 
+#from max to min host number (VERY IMPORTANT STEP!!!)
+wildFreq = wildFreq[order(wildFreq$mosquito,-wildFreq$host),]
+
+#Eliminate duplicated species rows. If the wildFreq data table 
+#hasn't been arranged by max to min host number, then you're going
+#to LOOSE HOST RICHNESS so be careful about this step and the 
+#previous one
+wildMaxHost = wildFreq[!(duplicated(wildFreq$mosquito)),]
+
+#Sort wildMaxHost (the table only with the maximum amount possible
+#of bloodmeal source hosts per mosquito species) from max to min
+wildMaxHost = wildMaxHost[order(-wildMaxHost$host),]
+
+#Number of mosquito species in wild environments
+length(wildMaxHost$mosquito)
+# 57 spp.
+#_________________________________________
+
+#Joining distMaxHost and wildMaxHost (the tables for both disturbed
+#and wild environments with only the maximum amount possible of
+#bloodemal source hosts per mosquito species)
+dw = rbind(distMaxHost,wildMaxHost)
+
+#Obtaining mosquito species in both landscape types (disturbed and wild)
+dw2 = dw[duplicated(dw$mosquito)|duplicated(dw$mosquito, fromLast = T),]
+length(dw2$mosquito)
+#There're 23 mosquito species that feed from bloodhosts in both landscapes
+
+#Reformat the database so that it has 3 columns: mosquito species,
+#bloodhosts in disturbed landscape and bloodhosts in wild landscapes
+wildData = dw2[dw2$landscape=="wild",]
+wildData = wildData[,c(1,2)]
+colnames(wildData) = c("mosquito","hostWild")
+disturbedData = dw2[dw2$landscape=="disturbed",]
+disturbedData = disturbedData[,c(1,2)]
+colnames(disturbedData) = c("mosquito","hostDist")
+dw3 = merge(disturbedData,wildData, by="mosquito")
+
+#Adding Aedes aegypti to the dataframe
+AeAegypti = c("Aedes_aegypti",dw$host[dw$mosquito=="Aedes_aegypti"],0)
+dw4 = rbind(dw3,AeAegypti)
+dw4 = dw4[order(dw4$mosquito),]
+
+#Converting dataframe to matrix to plot it easier
+dw4.matrix = rbind(as.numeric(dw4$hostWild),as.numeric(dw4$hostDist))
+rownames(dw4.matrix) = c("wild","disturbed")
+colnames(dw4.matrix) = dw4$mosquito
+dw4.matrix=dw4.matrix[,ncol(dw4.matrix):1]
+
+#________________________________________
+
+#Save as image
+png("LandscapeBarplot_24spp.png", units="in", width=15, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(1.5,8,0,0), cex=2)
+
+#Bar colors
+environmentColors = c("seagreen","gray90")
+
+#Bar names
+mosquitoSpp <- gsub("_"," ",dw4$mosquito)
+
+barplot(dw4.matrix,
+  beside=T,
+  horiz = T,
+  xlim=c(0,65),
+  names.arg = rev(mosquitoSpp),
+  xlab="",
+  ylab="",
+  xaxt="n",
+  las=1,
+  font=3,
+  cex.names = 1,
+  col = environmentColors)
+
+#X axis values
+axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
+
+#X axis label
+text(x = 39,
+     y = par("usr")[3] - 6,
+     labels = "Number of bloodmeal source hosts",
+     xpd = NA,
+     srt = 0,
+     cex = 1.2,
+     adj=0.7)
+
+#Landscape type legend
+legend(42,72,
+       legend = c("Wild","Disturbed"),
+       pch = 22,
+       col = "black",
+       pt.bg = environmentColors,
+       pt.cex = 1.5)
+
+dev.off()
+
+
