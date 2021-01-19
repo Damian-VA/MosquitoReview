@@ -1168,6 +1168,10 @@ write.csv(udata,"./Analisis/todos3.csv")
 #14-Jan-21 Disturbed vs. wild barplots ----
 mosquitos <- read.csv("./Analisis/Mosquito_Review_39articles.csv",header=T)
 
+#Number of mosquito species
+length(levels(factor(mosquitos$MosquitoSpecies)))
+#91 spp.
+
 #__________________________________________
 #Selecting subgroup of the dataset that only encompasses "disturbed
 #environment" values
@@ -1241,6 +1245,7 @@ dw = rbind(distMaxHost,wildMaxHost)
 
 #Obtaining mosquito species in both landscape types (disturbed and wild)
 dw2 = dw[duplicated(dw$mosquito)|duplicated(dw$mosquito, fromLast = T),]
+dw2[order(dw2$mosquito),]
 length(dw2$mosquito)
 #There're 23 mosquito species that feed from bloodhosts in both landscapes
 
@@ -1266,8 +1271,7 @@ colnames(dw4.matrix) = dw4$mosquito
 dw4.matrix=dw4.matrix[,ncol(dw4.matrix):1]
 
 #________________________________________
-
-#Save as image
+#Save as image the barplot of the landscape types
 png("LandscapeBarplot_24spp.png", units="in", width=15, height=15, res=300)
 
 #Overall plot settings
@@ -1313,5 +1317,154 @@ legend(42,72,
        pt.cex = 1.5)
 
 dev.off()
+#_________________________________________
+
+#Extracting mosquito species, host richness, host class and
+#landscape (disturbed or wild)
+mosquitos <- read.csv("./Analisis/Mosquito_Review_39articles.csv",header=T)
+mos = mosquitos[,c("MosquitoSpecies","HostRichness","Landscape","Mammalia","Aves","Reptilia","Amphibia","AuthorKey")]
+colnames(mos) = c("sp","host","landscape","mammalia","aves","reptilia","amphibia","id")
+head(mos)
+
+#Find true replicates: how many studies researched each of 
+#the 91 mosquito species
+mos$spID = paste(mos$sp,mos$id,sep = ",")
+levels(factor(mos$spID))
+mos2 = (sort(levels(factor(mos$spID))))
+mos3 = strsplit(mos2, ",")
+mos4 = unlist(lapply(mos3 , '[[', 1))
+mos5 = as.data.frame(table(mos4))
+colnames(mos5) = c("sp","studies")
+mos5[order(-mos5$studies),]
+
+#Checking which studies had data for both disturbed and wild landscapes
+mos$id=factor(mos$id)
+mos$landscape=factor(mos$landscape)
+md = mos$id[mos$landscape=="disturbed"]
+md = factor(md)
+mdl = levels(md)
+mw = mos$id[mos$landscape=="wild"]
+mw = factor(mw)
+mwl = levels(mw)
+wdtab = data.frame(table(c(mdl,mwl)))
+wdtab[order(-wdtab$Freq),]
 
 
+
+#19-Jan-21 Host class stacked barplots----
+
+#Importing database and extracting the top mosquito records with
+#the most host richness reported, with their respective number of
+#mammal, bird, amphibian and reptile hosts
+mosquitos <- read.csv("./Analisis/Mosquito_Review_39articles.csv",header=T)
+mos = mosquitos[,c("MosquitoSpecies","HostRichness","BloodengorgedMosquitoes","Landscape","Mammalia","Aves","Amphibia","Reptilia","AuthorKey")]
+colnames(mos) = c("sp","host","engorged","landscape","mammalia","aves","amphibia","reptilia","id")
+mos = mos[order(mos$sp,-mos$host),]
+mos = mos[!(duplicated(mos$sp)),]
+mos = mos[order(-mos$host),]
+mos[1:20,]
+
+#Transforming dataframe to a matrix to barplot it
+mosMatrix = rbind(as.numeric(mos$aves),as.numeric(mos$mammalia),as.numeric(mos$amphibia),as.numeric(mos$reptilia))
+rownames(mosMatrix) = c("Aves","Mammalia","Amphibia","Reptilia")
+colnames(mosMatrix) = mos$sp
+mosMatrix[,1:20]
+
+#Save as image
+png("hostClass17mos.png", units="in", width=28, height=15, res=300)
+
+#Overall plot settings
+par(mai=c(6,2,0,0), cex=2)
+
+#Bar colors
+hostClassColors = c("#00BFC4","#F8766D","#7CAE00","#C77CFF")
+
+#Bar names
+mosquitoSpp <- gsub("_"," ",colnames(mosMatrix[,1:20]))
+
+hostClassbp = barplot(mosMatrix[,1:20],
+  horiz = F,
+  ylim=c(0,70),
+  names.arg = mosquitoSpp,
+  xlab="",
+  ylab="",
+  xaxt="n",
+  yaxt="n",
+  las=2,
+  font=3,
+  col = hostClassColors)
+
+# #X axis values if horizontal barplots is true
+# axis(1,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2)
+# 
+# #X axis label if horizontal barplots is true
+# text(x = 39,
+#      y = par("usr")[3] - 4.5,
+#      labels = "Number of bloodmeal source hosts",
+#      xpd = NA,
+#      srt = 0,
+#      cex = 1.2,
+#      adj=0.7)
+
+#Y axis values if vertical barplots is true
+axis(2,at=c(0,10,20,30,40,50,60),labels = c("0","10","20","30","40","50","60"), cex.axis=1.2, las=1)
+
+#Y axis label if vertical barplots is true
+text(x = par("usr")[3] - 2.5,
+     y = 35,
+     labels = "Host richness",
+     xpd = NA,
+     srt = 90,
+     cex = 1.7,
+     adj=0.7)
+
+#X axis values if vertical barplots is true
+text(x = hostClassbp,
+     y = par("usr")[3] - 3,
+     labels = mosquitoSpp,
+     xpd = NA,
+     srt = 50,
+     cex = 1.7,
+     adj = 0.99,
+     font = 3)
+
+legend(20,65,
+  legend = rownames(mosMatrix), 
+  col = hostClassColors, 
+  bty = "n",
+  pch = 16,
+  y.intersp = 1.4,
+  pt.cex=3,
+  cex=2)
+
+dev.off()
+
+#Studying the blood hosts labeling
+bloodsources = mosquitos[,14:69]
+names(bloodsources)
+b1=unlist(bloodsources) #transform data frame into vector by columns
+b2=data.frame(table(b1)) #obtain the frequency of each blood source host label as a data frame
+b3 = b2[order(-b2$Freq),]
+colnames(b3) = c("bloodhost","replicates")
+head(b3)
+length(b3$bloodhost) 
+#317 not-curated blood host labels
+#1899 blood host replicates
+
+#Extract all the blood host labels that aren't a species names
+#and are probably wrongly written
+b4=subset(b3, !(grepl("_", bloodhost)))
+b4
+sum(b4$replicates) #232 hosts labeled NOT to species level
+sum(b4$replicates[c(1,5,6,10,12,17,20,27)]) #8 labels are genera names, its total replicate sum is equal to 35
+
+
+#Extract all labels identified to genus level (endend in sp.)
+b5=subset(b3, (grepl("_sp.", bloodhost)))
+b5
+sum(b5$replicates[c(4,7,8)]) #7 hosts labeled only to genus level
+
+#Extract all the blood host labels that ARE species names
+b6=subset(b3, (grepl("_", bloodhost)))
+b6
+sum(b6$replicates) #1667 hosts labeled to species level
