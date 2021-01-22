@@ -1460,7 +1460,7 @@ sum(b4$replicates[c(1,5,6,10,12,17,20,27)]) #8 labels are genera names, its tota
 
 
 #Extract all labels identified to genus level (endend in sp.)
-b5=subset(b3, (grepl("_sp.", bloodhost)))
+b5=subset(b3, (grepl("_sp", bloodhost)))
 b5
 sum(b5$replicates[c(4,7,8)]) #7 hosts labeled only to genus level
 
@@ -1468,3 +1468,123 @@ sum(b5$replicates[c(4,7,8)]) #7 hosts labeled only to genus level
 b6=subset(b3, (grepl("_", bloodhost)))
 b6
 sum(b6$replicates) #1667 hosts labeled to species level
+
+#22-Jan-21 correcting labels in database----
+mosquitos <- read.csv("./Analisis/Mosquito_Review_39articles.csv",header=T)
+mc = mosquitos
+
+#Studying the blood hosts labeling
+bloodsources = mc[,14:69]
+b1=unlist(bloodsources) #transform data frame into vector by columns
+b2=data.frame(table(b1)) #obtain the frequency of each blood source host label as a data frame
+b3 = b2[order(b2$b1),]
+colnames(b3) = c("bloodhost","replicates") #length 317
+
+#Correcting records
+mc=replace(mc, mc=="Alligator_missisippiensis", "Alligator_mississippiensis")
+mc=replace(mc, mc=="Alligator_mississippiens", "Alligator_mississippiensis")
+mc=replace(mc, mc=="Alligator_mississippiens", "Alligator_mississippiensis")
+mc=replace(mc, mc=="Anas_platyrhynchos_domesticus", "Anas_platyrhynchos")
+mc=replace(mc, mc=="Anhinga", "Anhinga_anhinga")
+mc=replace(mc, mc=="Anolis_caronilensis", "Anolis_carolinensis")
+mc=replace(mc, mc=="Ardea_herdias", "Ardea_herodias")
+mc=replace(mc, mc=="Bare_faced_ibis", "Phimosus_infuscatus")
+mc=replace(mc, mc=="Bird", "bird")
+mc=replace(mc, mc=="Black_crowdned_night_heron", "Nycticorax_nycticorax")
+mc=replace(mc, mc=="bos_taurus", "Bos_taurus")
+mc=replace(mc, mc=="Branta_canadenis", "Branta_canadensis")
+mc=replace(mc, mc=="Canis_familiaris", "Canis_lupus_familiaris")
+mc=replace(mc, mc=="Cannis_lupus", "Canis_lupus_familiaris")
+mc=replace(mc, mc=="Capra_aegagrus_hircus", "Capra_hircus")
+mc=replace(mc, mc=="Capybara", "Hydrochoerus_hydrochaeris")
+mc=replace(mc, mc=="Carolina", "Carolina_sp")
+mc=replace(mc, mc=="cat", "Felis_catus")
+mc=replace(mc, mc=="Chatarus_gattatus", "Catharus_guttatus")
+mc=replace(mc, mc=="Chicken", "Gallus_gallus")
+mc=replace(mc, mc=="Cocoi_heron", "Ardea_cocoi")
+mc=replace(mc, mc=="Common_moorhen", "Gallinula_chloropus")
+mc=replace(mc, mc=="Common_opossum", "Didelphis_sp")
+mc=replace(mc, mc=="Corvus_brachyrhyncho", "Corvus_brachyrhynchos")
+mc=replace(mc, mc=="Cow", "Bos_taurus")
+mc=replace(mc, mc=="dasypus_novemcinctus", "Dasypus_novemcinctus")
+mc=replace(mc, mc=="Didelphis", "Didelphis_sp")
+mc=replace(mc, mc=="Dog", "Canis_lupus_familiaris")
+mc=replace(mc, mc=="Equus", "Equus_caballus")
+mc=replace(mc, mc=="Equus_ferus_caballus", "Equus_caballus")
+mc=replace(mc, mc=="Felis_silvestris_catus", "Felis_catus")
+mc=replace(mc, mc=="Frog", "Anura")
+mc=replace(mc, mc=="gallus_gallus", "Gallus_gallus")
+mc=replace(mc, mc=="gallu_gallus", "Gallus_gallus")
+mc=replace(mc, mc=="gallus_gallus_domesticus", "Gallus_gallus")
+mc=replace(mc, mc=="Gallus_gallus_domesticus", "Gallus_gallus")
+mc=replace(mc, mc=="Goat", "Capra_hircus")
+mc=replace(mc, mc=="Goat(sheep)", "Capra_hircus")
+mc=replace(mc, mc=="Homo", "Homo_sapiens")
+mc=replace(mc, mc=="homo_sapiens", "Homo_sapiens")
+mc=replace(mc, mc=="Homo_sapiens_sapiens", "Homo_sapiens")
+mc=replace(mc, mc=="Human", "Homo_sapiens")
+mc=replace(mc, mc=="Horse", "Equus_caballus")
+mc=replace(mc, mc=="Iguana", "Iguana_iguana")
+mc=replace(mc, mc=="Least_bittern", "Ixobrychus_exilis")
+mc=replace(mc, mc=="Limpkin", "Aramus_guarauna")
+mc=replace(mc, mc=="Lithobates_sp.", "Lithobates_sp")
+mc=replace(mc, mc=="Lithobates_sphenocephelus", "Lithobates_sphenocephalus")
+mc=replace(mc, mc=="Melospize_melodia", "Melospiza_melodia")
+mc=replace(mc, mc=="Memphitis_memphitis", "Mephitis_mephitis")
+mc=replace(mc, mc=="Myprocta_pratti", "Myoprocta_prattis")
+mc=replace(mc, mc=="Nerodia_erythrogaster,", "Nerodia_erythrogaster")
+mc=replace(mc, mc=="Nyctanassa_violace", "Nyctanassa_violacea")
+mc=replace(mc, mc=="Nycticorax_cycticorax", "Nycticorax_nycticorax")
+mc=replace(mc, mc=="Nycticorax_myticorax", "Nycticorax_nycticorax")
+mc=replace(mc, mc=="Nyctiocorax_nyctiocorax", "Nycticorax_nycticorax")
+mc=replace(mc, mc=="Odocoileus_virginiamus", "Odocoileus_virginianus")
+mc=replace(mc, mc=="Odocoileus_virginuanus", "Odocoileus_virginianus")
+mc=replace(mc, mc=="Opossum", "Didelphis_sp")
+mc=replace(mc, mc=="Pig", "Sus_scrofa")
+mc=replace(mc, mc=="Pinneated_bittern", "Botaurus_pinnatus")
+mc=replace(mc, mc=="Poecile_atricapilla", "Poecile_atricapillus")
+mc=replace(mc, mc=="Poecile_atricapilla", "Poecile_atricapillus")
+mc=replace(mc, mc=="primate", "Primates")
+mc=replace(mc, mc=="Rattus_norvergicus", "Rattus_norvegicus")
+mc=replace(mc, mc=="Rattus_norvergicus,", "Rattus_norvegicus")
+mc=replace(mc, mc=="Rattus_sp.", "Rattus_sp")
+mc=replace(mc, mc=="Rattus", "Rattus_sp")
+mc=replace(mc, mc=="Rodent", "Rodentia")
+mc=replace(mc, mc=="Sheep", "Ovis_aries")
+mc=replace(mc, mc=="Straited_heron", "Butorides_striata")
+mc=replace(mc, mc=="Sus_scrofa_domesticus", "Sus_scrofa")
+mc=replace(mc, mc=="Sylvialagus_floridanus", "Sylvilagus_floridanus")
+mc=replace(mc, mc=="Terrapene_carolina_carolina", "Terrapene_carolina")
+mc=replace(mc, mc=="Tiarsis_bicolor", "Tiaris_bicolor")
+mc=replace(mc, mc=="Toxostoma_curviroste", "Toxostoma_curvirostre")
+mc=replace(mc, mc=="Tropidurus_sp.", "Tropidurus_sp")
+mc=replace(mc, mc=="turtle", "turtle")
+mc=replace(mc, mc=="Turtle", "turtle")
+mc=replace(mc, mc=="Zanaida_asiatica", "Zenaida_asiatica")
+
+#Studying the blood hosts labeling after correcting errors
+b.corr = mc[,14:69]
+b.corr1=unlist(b.corr)
+b.corr2=data.frame(table(b.corr1))
+b.corr3 = b.corr2[order(b.corr2$b.corr1),]
+colnames(b.corr3) = c("bloodhost","replicates")
+length(b.corr3$bloodhost) #252 bloodhost labels
+sum(b.corr3$replicates) #1899 bloodhost records
+b.corr3 = b.corr3[order(-b.corr3$replicates),]
+
+#Extract all the blood host labels that aren't a species names
+#and are probably wrongly written
+b.corr4=subset(b.corr3, !(grepl("_", bloodhost)))
+b.corr4
+sum(b.corr4$replicates) #174 non-bloodhost records plus...
+
+#Extract all labels identified to genus level (endend in sp.)
+b.corr5=subset(b.corr3, (grepl("_sp", bloodhost)))
+b.corr5
+sum(b.corr5$replicates[c(-1,-4,-5,-7)]) #37 bloodhost genera not id to species level
+
+# #Save as CSV the table with the 252 bloodhost labels and its replicates
+# write.csv(b.corr3, file="Hosts.csv", row.names=F)
+
+# #Save as XLSX the database with 252 bloodhosts correct labels
+# write.csv(mc, file="Mosquito_Review_39articles.csv", row.names = F)
