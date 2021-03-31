@@ -57,7 +57,7 @@ levels(mosquito$ID)
 levels(as.factor(mosquito$Year))
 length(levels(mosquito$ID))
 
-#15 November 2020----
+#15 November 2020. Map 2nd try----
 #superior left corner of USA+Latinamerica: -53 S, -131 W 
 #inferior right corner of USA+Latinamerica: 50 N, -23 W, 
 
@@ -1588,3 +1588,67 @@ sum(b.corr5$replicates[c(-1,-4,-5,-7)]) #37 bloodhost genera not id to species l
 
 # #Save as XLSX the database with 252 bloodhosts correct labels
 # write.csv(mc, file="Mosquito_Review_39articles.csv", row.names = F)
+
+#31 May 2021. Labeled MAP (for reference)----
+
+#Packages
+library(maps)    #map functions
+library(mapdata) #basic world map data
+library(maptools)#for shapefiles
+library(scales)  #for transparency
+
+#Importing most updated database:
+msqt = read.csv("./Analisis/Mosquito_Review_39articles.csv", header=T, sep=",")
+head(msqt)
+
+#Extracting columns of interest: Title, LongW, LatN, ID, AuthorKey, MosquitoSpecies, Landscape, HostRichness
+msqt2 = msqt[,c("Title","LongW","LatN","ID","AuthorKey","MosquitoSpecies","Landscape","HostRichness")]
+head(msqt2)
+
+#Obtaining unique coordinates. Currently we have 343 rows, but only 146 unique coordinates. Duplicates are because more than one mosquito species was identified in a single site.
+length(msqt2$LongW) #343 rows
+msqt3 = msqt2[!(duplicated(msqt2$LongW)),]
+length(msqt3$LongW) #146 rows
+
+#Plotting map with labels
+png("MapAuthorKey.png", units="in", width=16, height=16, res=600)
+map(database="worldHires", 
+    regions = c("USA",
+                "Mexico",
+                "Guatemala",
+                "Belize",
+                "El Salvador",
+                "Honduras",
+                "Nicaragua",
+                "Panama",
+                "Costa Rica",
+                "Venezuela",
+                "Colombia",
+                "Guyana",
+                "French Guiana",
+                "Suriname",
+                "Brazil",
+                "Ecuador(?!:Galapagos)",
+                "Peru",
+                "Bolivia",
+                "Paraguay",
+                "Uruguay",
+                "Chile",
+                "Argentina"),
+    xlim=c(-124,-35),  #longitude (left, right)
+    ylim=c(-35,49),    #latitude  (bottom, top)
+    col="gray90",
+    fill=T)   
+
+# #plotting mosquito study sites
+# points(msqt3$LongW, msqt3$LatN, 
+#        pch=21, 
+#        col="white",
+#        bg="black",
+#        lwd=2,
+#        cex=5)
+
+#Labels for each study (each point)
+text(msqt3$LongW, msqt3$LatN, labels = msqt3$ID, cex=0.5, col="red")
+
+dev.off()
